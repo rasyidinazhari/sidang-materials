@@ -1,0 +1,2837 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Sistem Face Recognition Berbasis IP CCTV dan FaceNet — Presentasi Skripsi
+    </title>
+    <meta
+      name="description"
+      content="Presentasi sidang skripsi: Sistem Face Recognition Berbasis IP CCTV dan FaceNet untuk Presensi Karyawan di PT Dinamika Mediakom"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ========== RESET & BASE ========== */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #fafafa;
+        --bg-card: #ffffff;
+        --bg-muted: #f4f4f5;
+        --text: #0a0a0a;
+        --text-muted: #71717a;
+        --text-subtle: #a1a1aa;
+        --border: #e4e4e7;
+        --border-hover: #d4d4d8;
+        --accent: #4f46e5;
+        --accent-light: #e0e7ff;
+        --accent-muted: #818cf8;
+        --accent-bg: #eef2ff;
+        --success: #16a34a;
+        --success-light: #dcfce7;
+        --danger: #dc2626;
+        --danger-light: #fee2e2;
+        --warning: #f59e0b;
+        --warning-light: #fef9c3;
+        --radius: 10px;
+        --radius-lg: 14px;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+        --transition: 300ms ease-in-out;
+        --font: "Inter", system-ui, -apple-system, sans-serif;
+      }
+
+      [data-theme="dark"] {
+        --bg: #09090b;
+        --bg-card: #18181b;
+        --bg-muted: #1e1e22;
+        --text: #fafafa;
+        --text-muted: #a1a1aa;
+        --text-subtle: #71717a;
+        --border: #27272a;
+        --border-hover: #3f3f46;
+        --accent: #818cf8;
+        --accent-light: #1e1b4b;
+        --accent-muted: #6366f1;
+        --accent-bg: #1e1b4b;
+        --success: #4ade80;
+        --success-light: #052e16;
+        --danger: #f87171;
+        --danger-light: #450a0a;
+        --warning: #fbbf24;
+        --warning-light: #422006;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      html {
+        font-size: 16px;
+      }
+      body {
+        font-family: var(--font);
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+        transition:
+          background var(--transition),
+          color var(--transition);
+      }
+
+      /* ========== PRESENTATION CONTAINER ========== */
+      .presentation {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      /* ========== TOP BAR ========== */
+      .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 24px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+        z-index: 100;
+        flex-shrink: 0;
+        transition:
+          background var(--transition),
+          border-color var(--transition);
+      }
+
+      .progress-container {
+        flex: 1;
+        max-width: 400px;
+        margin: 0 20px;
+      }
+
+      .progress-track {
+        width: 100%;
+        height: 3px;
+        background: var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: var(--accent);
+        border-radius: 4px;
+        transition: width 400ms ease-in-out;
+      }
+
+      .slide-counter {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-muted);
+        font-variant-numeric: tabular-nums;
+        min-width: 50px;
+        text-align: center;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .icon-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 200ms ease;
+      }
+
+      .icon-btn:hover {
+        border-color: var(--border-hover);
+        color: var(--text);
+        background: var(--bg-muted);
+      }
+
+      .icon-btn svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* ========== SLIDE AREA ========== */
+      .slide-area {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .slide {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        opacity: 0;
+        transform: translateX(40px);
+        pointer-events: none;
+        transition:
+          opacity 350ms ease-in-out,
+          transform 350ms ease-in-out;
+      }
+
+      .slide.active {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+
+      .slide.exit-left {
+        opacity: 0;
+        transform: translateX(-40px);
+      }
+
+      .slide-inner {
+        width: 100%;
+        max-width: 960px;
+        max-height: 100%;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+      }
+
+      .slide-inner::-webkit-scrollbar {
+        width: 4px;
+      }
+      .slide-inner::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .slide-inner::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 4px;
+      }
+
+      /* ========== TYPOGRAPHY ========== */
+      .slide-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--accent);
+        margin-bottom: 8px;
+      }
+
+      .slide-title {
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        font-weight: 800;
+        line-height: 1.15;
+        color: var(--text);
+        margin-bottom: 16px;
+        letter-spacing: -0.02em;
+      }
+
+      .slide-subtitle {
+        font-size: clamp(1rem, 2vw, 1.15rem);
+        font-weight: 400;
+        color: var(--text-muted);
+        margin-bottom: 32px;
+        line-height: 1.5;
+      }
+
+      /* ========== CARDS ========== */
+      .card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px 24px;
+        background: var(--bg-card);
+        transition:
+          border-color 200ms ease,
+          background var(--transition);
+      }
+
+      .card + .card {
+        margin-top: 12px;
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .card-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      /* ========== BULLET LIST ========== */
+      .bullet-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .bullet-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 10px 0;
+        font-size: 15px;
+        color: var(--text);
+        line-height: 1.55;
+      }
+
+      .bullet-list li + li {
+        border-top: 1px solid var(--border);
+      }
+
+      .bullet-icon {
+        flex-shrink: 0;
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: var(--accent-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2px;
+      }
+
+      .bullet-icon svg {
+        width: 13px;
+        height: 13px;
+        stroke: var(--accent);
+        fill: none;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* ========== STAT CARDS ========== */
+      .stat-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        background: var(--bg-card);
+        text-align: center;
+        transition:
+          border-color 200ms ease,
+          background var(--transition);
+      }
+
+      .stat-value {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 800;
+        color: var(--accent);
+        line-height: 1;
+        letter-spacing: -0.03em;
+      }
+
+      .stat-value.success {
+        color: var(--success);
+      }
+      .stat-value.danger {
+        color: var(--danger);
+      }
+      .stat-value.warning {
+        color: var(--warning);
+      }
+
+      .stat-label {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-top: 6px;
+        font-weight: 500;
+      }
+
+      .stat-sub {
+        font-size: 12px;
+        color: var(--text-subtle);
+        margin-top: 2px;
+      }
+
+      /* ========== COMPARISON COLUMNS ========== */
+      .compare-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .compare-col {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        background: var(--bg-card);
+      }
+
+      .compare-col.before {
+        border-top: 3px solid var(--danger);
+      }
+      .compare-col.after {
+        border-top: 3px solid var(--success);
+      }
+
+      .compare-header {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 14px;
+      }
+
+      .compare-col.before .compare-header {
+        color: var(--danger);
+      }
+      .compare-col.after .compare-header {
+        color: var(--success);
+      }
+
+      .compare-item {
+        font-size: 14px;
+        color: var(--text);
+        padding: 8px 0;
+        border-top: 1px solid var(--border);
+        line-height: 1.5;
+      }
+
+      .compare-item:first-of-type {
+        border-top: none;
+      }
+
+      .compare-item .label {
+        font-weight: 600;
+        font-size: 12px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* ========== PIECES TABLE ========== */
+      .pieces-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .pieces-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px 18px;
+        background: var(--bg-card);
+        transition: background var(--transition);
+      }
+
+      .pieces-letter {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--accent);
+        line-height: 1;
+      }
+
+      .pieces-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        margin-top: 2px;
+        margin-bottom: 10px;
+      }
+
+      .pieces-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 6px;
+      }
+
+      .pieces-before,
+      .pieces-after {
+        flex: 1;
+        font-size: 12.5px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        line-height: 1.4;
+      }
+
+      .pieces-before {
+        background: var(--danger-light);
+        color: var(--danger);
+      }
+
+      .pieces-after {
+        background: var(--success-light);
+        color: var(--success);
+      }
+
+      /* ========== CONFUSION MATRIX ========== */
+      .matrix-container {
+        display: grid;
+        grid-template-columns: auto 1fr 1fr;
+        grid-template-rows: auto 1fr 1fr;
+        gap: 4px;
+        max-width: 340px;
+        margin: 16px auto;
+      }
+
+      .matrix-corner {
+        /* top-left empty */
+      }
+
+      .matrix-col-header,
+      .matrix-row-header {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
+      }
+
+      .matrix-cell {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        min-height: 80px;
+        transition: background var(--transition);
+      }
+
+      .matrix-cell .val {
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .matrix-cell .lbl {
+        font-size: 11px;
+        font-weight: 600;
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .matrix-tp {
+        background: var(--success-light);
+      }
+      .matrix-tp .val,
+      .matrix-tp .lbl {
+        color: var(--success);
+      }
+      .matrix-tn {
+        background: var(--success-light);
+      }
+      .matrix-tn .val,
+      .matrix-tn .lbl {
+        color: var(--success);
+      }
+      .matrix-fp {
+        background: var(--danger-light);
+      }
+      .matrix-fp .val,
+      .matrix-fp .lbl {
+        color: var(--danger);
+      }
+      .matrix-fn {
+        background: var(--warning-light);
+      }
+      .matrix-fn .val,
+      .matrix-fn .lbl {
+        color: var(--warning);
+      }
+
+      /* ========== BAR CHART ========== */
+      .bar-chart {
+        display: flex;
+        align-items: flex-end;
+        gap: 24px;
+        justify-content: center;
+        height: 160px;
+        margin: 24px 0 8px;
+        padding: 0 20px;
+      }
+
+      .bar-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .bar-wrapper {
+        width: 56px;
+        height: 140px;
+        display: flex;
+        align-items: flex-end;
+      }
+
+      .bar {
+        width: 100%;
+        border-radius: 6px 6px 2px 2px;
+        transition: height 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+      }
+
+      .bar-val {
+        position: absolute;
+        top: -22px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .bar-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-align: center;
+        max-width: 70px;
+      }
+
+      /* ========== PIPELINE FLOW ========== */
+      .pipeline {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 16px;
+      }
+
+      .pipeline-step {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text);
+        background: var(--bg-card);
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      .pipeline-arrow {
+        color: var(--text-subtle);
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+
+      /* ========== BOTTOM NAV ========== */
+      .bottom-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 14px 24px;
+        border-top: 1px solid var(--border);
+        background: var(--bg);
+        z-index: 100;
+        flex-shrink: 0;
+        transition:
+          background var(--transition),
+          border-color var(--transition);
+      }
+
+      .nav-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 20px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 200ms ease;
+        user-select: none;
+      }
+
+      .nav-btn:hover:not(:disabled) {
+        border-color: var(--border-hover);
+        background: var(--bg-muted);
+      }
+
+      .nav-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .nav-btn.primary {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+
+      .nav-btn.primary:hover:not(:disabled) {
+        background: var(--accent-muted);
+        border-color: var(--accent-muted);
+      }
+
+      .nav-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* ========== TITLE SLIDE ========== */
+      .title-slide {
+        text-align: center;
+      }
+
+      .title-slide .slide-title {
+        font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+        max-width: 800px;
+        margin: 0 auto 20px;
+      }
+
+      .title-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-muted);
+        margin-bottom: 24px;
+      }
+
+      .author-info {
+        margin-top: 32px;
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.8;
+      }
+
+      .author-info strong {
+        color: var(--text);
+      }
+
+      /* ========== CLOSING SLIDE ========== */
+      .closing-slide {
+        text-align: center;
+      }
+
+      .closing-slide .slide-title {
+        font-size: clamp(2rem, 5vw, 3.2rem);
+      }
+
+      .closing-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        background: var(--accent-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+      }
+
+      .closing-icon svg {
+        width: 32px;
+        height: 32px;
+        stroke: var(--accent);
+        fill: none;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* ========== BLACKBOX TABLE ========== */
+      .bb-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-top: 16px;
+        font-size: 13px;
+      }
+
+      .bb-table th {
+        background: var(--bg-muted);
+        font-weight: 700;
+        text-align: left;
+        padding: 10px 14px;
+        color: var(--text);
+        border-bottom: 1px solid var(--border);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .bb-table td {
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+      }
+
+      .bb-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .badge-success {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 10px;
+        border-radius: 12px;
+        background: var(--success-light);
+        color: var(--success);
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      /* ========== RESPONSIVE ========== */
+      @media (max-width: 768px) {
+        .slide {
+          padding: 20px;
+        }
+        .top-bar {
+          padding: 10px 16px;
+        }
+        .bottom-nav {
+          padding: 10px 16px;
+        }
+        .compare-grid {
+          grid-template-columns: 1fr;
+        }
+        .pieces-grid {
+          grid-template-columns: 1fr;
+        }
+        .card-grid {
+          grid-template-columns: 1fr;
+        }
+        .card-grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .matrix-container {
+          max-width: 280px;
+        }
+        .bar-chart {
+          height: 130px;
+        }
+        .bar-wrapper {
+          height: 110px;
+          width: 44px;
+        }
+        .pipeline {
+          gap: 4px;
+        }
+        .pipeline-step {
+          font-size: 10px;
+          padding: 6px 8px;
+        }
+        .nav-btn {
+          padding: 8px 14px;
+          font-size: 12px;
+        }
+        .progress-container {
+          max-width: 200px;
+        }
+        .bb-table {
+          font-size: 11px;
+        }
+        .bb-table th,
+        .bb-table td {
+          padding: 8px 10px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .top-bar {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .progress-container {
+          max-width: 100%;
+          order: 3;
+          flex-basis: 100%;
+          margin: 0;
+        }
+        .bar-chart {
+          flex-wrap: wrap;
+          height: auto;
+        }
+        .bar-wrapper {
+          height: 90px;
+          width: 40px;
+        }
+      }
+
+      /* ========== FULLSCREEN TWEAKS ========== */
+      :fullscreen .top-bar,
+      :-webkit-full-screen .top-bar {
+        padding: 16px 32px;
+      }
+
+      :fullscreen .slide,
+      :-webkit-full-screen .slide {
+        padding: 48px;
+      }
+
+      /* ========== PRINT ========== */
+      @media print {
+        .top-bar,
+        .bottom-nav {
+          display: none;
+        }
+        .slide {
+          position: relative;
+          opacity: 1;
+          transform: none;
+          pointer-events: auto;
+          page-break-after: always;
+        }
+        .slide-area {
+          overflow: visible;
+        }
+      }
+
+      /* ========== ANIMATIONS ========== */
+      /* ========== GALLERY ========== */
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 14px;
+        margin-top: 16px;
+      }
+
+      .gallery-item {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: var(--bg-card);
+        cursor: pointer;
+        transition:
+          border-color 200ms ease,
+          transform 200ms ease;
+      }
+
+      .gallery-item:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+      }
+
+      .gallery-item img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        display: block;
+        border-bottom: 1px solid var(--border);
+        transition: opacity 200ms ease;
+      }
+
+      .gallery-item:hover img {
+        opacity: 0.9;
+      }
+
+      .gallery-caption {
+        padding: 12px 14px;
+      }
+
+      .gallery-caption-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .gallery-caption-desc {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 2px;
+        line-height: 1.4;
+      }
+
+      /* Lightbox */
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 250ms ease;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+      }
+
+      .lightbox.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .lightbox img {
+        max-width: 90vw;
+        max-height: 85vh;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        transform: scale(0.92);
+        transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      .lightbox.open img {
+        transform: scale(1);
+      }
+
+      .lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        transition: background 200ms;
+      }
+
+      .lightbox-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .lightbox-caption {
+        position: absolute;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 8px 20px;
+        border-radius: 8px;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 768px) {
+        .gallery-grid {
+          grid-template-columns: 1fr;
+        }
+        .gallery-item img {
+          height: 150px;
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .slide.active .card,
+      .slide.active .stat-card,
+      .slide.active .pieces-card,
+      .slide.active .compare-col {
+        animation: fadeInUp 400ms ease-out both;
+      }
+
+      .slide.active .card:nth-child(2),
+      .slide.active .stat-card:nth-child(2),
+      .slide.active .pieces-card:nth-child(2),
+      .slide.active .compare-col:nth-child(2) {
+        animation-delay: 60ms;
+      }
+
+      .slide.active .card:nth-child(3),
+      .slide.active .stat-card:nth-child(3),
+      .slide.active .pieces-card:nth-child(3) {
+        animation-delay: 120ms;
+      }
+
+      .slide.active .card:nth-child(4),
+      .slide.active .stat-card:nth-child(4),
+      .slide.active .pieces-card:nth-child(4) {
+        animation-delay: 180ms;
+      }
+
+      .slide.active .stat-card:nth-child(5) {
+        animation-delay: 240ms;
+      }
+      .slide.active .pieces-card:nth-child(5) {
+        animation-delay: 240ms;
+      }
+      .slide.active .pieces-card:nth-child(6) {
+        animation-delay: 300ms;
+      }
+
+      .slide.active .bar {
+        animation: growBar 800ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        animation-delay: 200ms;
+      }
+
+      @keyframes growBar {
+        from {
+          height: 0 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="presentation" id="presentation">
+      <!-- TOP BAR -->
+      <div class="top-bar">
+        <div class="slide-counter" id="slideCounter">1 / 15</div>
+        <div class="progress-container">
+          <div class="progress-track">
+            <div
+              class="progress-fill"
+              id="progressFill"
+              style="width: 6.67%"
+            ></div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button
+            class="icon-btn"
+            id="btnTheme"
+            title="Toggle Dark Mode"
+            aria-label="Toggle dark mode"
+          >
+            <svg id="iconSun" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+            <svg id="iconMoon" viewBox="0 0 24 24" style="display: none">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          </button>
+          <button
+            class="icon-btn"
+            id="btnFullscreen"
+            title="Toggle Fullscreen"
+            aria-label="Toggle fullscreen"
+          >
+            <svg viewBox="0 0 24 24">
+              <polyline points="15 3 21 3 21 9" />
+              <polyline points="9 21 3 21 3 15" />
+              <line x1="21" y1="3" x2="14" y2="10" />
+              <line x1="3" y1="21" x2="10" y2="14" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- SLIDE AREA -->
+      <div class="slide-area" id="slideArea">
+        <!-- SLIDE 1: Judul -->
+        <div class="slide active" data-slide="1">
+          <div class="slide-inner title-slide">
+            <div class="title-badge">
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                stroke="currentColor"
+                fill="none"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+              </svg>
+              Sidang Skripsi
+            </div>
+            <h1 class="slide-title">
+              Sistem Face Recognition Berbasis IP CCTV dan FaceNet untuk
+              Presensi Karyawan di PT Dinamika Mediakom
+            </h1>
+            <div class="author-info">
+              <strong>Wisnu Rasyidin Azhari &amp; 2213010446</strong><br />
+              Program Studi Informatika<br />
+              <br />
+              <span style="color: var(--text-subtle)">Dosen Pembimbing: </span
+              ><br />
+              <span style="color: var(--text-subtle)"
+                >Ina Sholihah Widiati, M.Kom</span
+              ><br />
+              <span style="color: var(--text-subtle)"
+                >Tinuk Agustin, M.Kom</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 2: Latar Belakang -->
+        <div class="slide" data-slide="2">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 2</div>
+            <h2 class="slide-title">Latar Belakang</h2>
+            <div class="card">
+              <ul class="bullet-list">
+                <li>
+                  <span class="bullet-icon"
+                    ><svg viewBox="0 0 24 24">
+                      <path
+                        d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                      /></svg
+                  ></span>
+                  <span
+                    >Presensi saat ini pakai 2 metode:
+                    <strong>fingerprint</strong> (otomatis masuk Sistem Presensi
+                    Pusat) dan <strong>manual tulis tangan</strong></span
+                  >
+                </li>
+                <li>
+                  <span class="bullet-icon"
+                    ><svg viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" /></svg
+                  ></span>
+                  <span
+                    >Jan–Apr 2026: rata-rata <strong>45%–55%</strong> karyawan
+                    tercatat terlambat karena sensor fingerprint gagal baca jari
+                    basah/kotor/luka, antrean panjang</span
+                  >
+                </li>
+                <li>
+                  <span class="bullet-icon"
+                    ><svg viewBox="0 0 24 24">
+                      <line x1="12" y1="1" x2="12" y2="23" />
+                      <path
+                        d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+                      /></svg
+                  ></span>
+                  <span
+                    >Data presensi menentukan <strong>remunerasi</strong> (gaji,
+                    bonus, THR) — kerugian material bagi karyawan</span
+                  >
+                </li>
+                <li>
+                  <span class="bullet-icon"
+                    ><svg viewBox="0 0 24 24">
+                      <polygon
+                        points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
+                      /></svg
+                  ></span>
+                  <span
+                    >Solusi: <strong>Face Recognition</strong> berbasis Computer
+                    Vision memanfaatkan 6 unit IP CCTV yang sudah ada (pakai 1
+                    unit di pintu masuk utama)</span
+                  >
+                </li>
+                <li>
+                  <span class="bullet-icon"
+                    ><svg viewBox="0 0 24 24">
+                      <path
+                        d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                      />
+                      <path
+                        d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                      /></svg
+                  ></span>
+                  <span
+                    >Bukan mengganti Sistem Presensi Pusat, tapi
+                    <strong>menambahkan modul Face Recognition</strong> sebagai
+                    client terhubung via REST API (GET sync data wajah, POST
+                    kirim presensi)</span
+                  >
+                </li>
+                <li>
+                  <span class="bullet-icon"
+                    ><svg viewBox="0 0 24 24">
+                      <rect x="4" y="4" width="16" height="16" rx="2" ry="2" />
+                      <rect x="9" y="9" width="6" height="6" />
+                      <line x1="9" y1="1" x2="9" y2="4" />
+                      <line x1="15" y1="1" x2="15" y2="4" />
+                      <line x1="9" y1="20" x2="9" y2="23" />
+                      <line x1="15" y1="20" x2="15" y2="23" />
+                      <line x1="20" y1="9" x2="23" y2="9" />
+                      <line x1="20" y1="14" x2="23" y2="14" />
+                      <line x1="1" y1="9" x2="4" y2="9" />
+                      <line x1="1" y1="14" x2="4" y2="14" /></svg
+                  ></span>
+                  <span
+                    >Model: <strong>BlazeFace</strong> (MediaPipe) untuk deteksi
+                    + <strong>Inception-ResNet-v1</strong> (FaceNet) untuk
+                    ekstraksi fitur — ringan di CPU only, 8GB RAM</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 3: Rumusan Masalah -->
+        <div class="slide" data-slide="3">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 3</div>
+            <h2 class="slide-title">Rumusan Masalah</h2>
+            <div class="card-grid" style="grid-template-columns: 1fr">
+              <div class="card">
+                <ul class="bullet-list">
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" /></svg
+                    ></span>
+                    <span
+                      >Bagaimana membangun sistem Face Recognition dengan IP
+                      CCTV &amp; FaceNet untuk presensi karyawan?</span
+                    >
+                  </li>
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" /></svg
+                    ></span>
+                    <span
+                      >Bagaimana menguji akurasi (Confusion Matrix) dan
+                      fungsionalitas sistem (Blackbox Testing)?</span
+                    >
+                  </li>
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" /></svg
+                    ></span>
+                    <span
+                      >Bagaimana merancang integrasi otomatis hasil pengenalan
+                      wajah ke Sistem Presensi Pusat?</span
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 4: Batasan Masalah -->
+        <div class="slide" data-slide="4">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 4</div>
+            <h2 class="slide-title">Batasan Masalah</h2>
+            <div class="card-grid">
+              <div class="card">
+                <ul class="bullet-list">
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <polyline points="16 18 22 12 16 6" />
+                        <polyline points="8 6 2 12 8 18" /></svg
+                    ></span>
+                    <span
+                      >Python + MediaPipe + FaceNet, input dari 1 unit IP CCTV
+                      via RTSP</span
+                    >
+                  </li>
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg
+                    ></span>
+                    <span
+                      >Populasi pengguna: <strong>30 karyawan</strong> PT
+                      Dinamika Mediakom</span
+                    >
+                  </li>
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <path
+                          d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                        /></svg
+                    ></span>
+                    <span>Presensi otomatis tanpa kontak fisik</span>
+                  </li>
+                </ul>
+              </div>
+              <div class="card">
+                <ul class="bullet-list">
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" /></svg
+                    ></span>
+                    <span
+                      >Error handling: koneksi RTSP terputus &amp; kegagalan
+                      kirim API</span
+                    >
+                  </li>
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <path
+                          d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                        />
+                        <path
+                          d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                        /></svg
+                    ></span>
+                    <span
+                      >Integrasi via REST API (GET sync foto, POST data
+                      presensi)</span
+                    >
+                  </li>
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <path d="M12 20V10" />
+                        <path d="M18 20V4" />
+                        <path d="M6 20v-4" /></svg
+                    ></span>
+                    <span
+                      >Threshold biometrik <strong>0.75</strong> pada
+                      pencahayaan stabil</span
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 5: Tujuan & Manfaat -->
+        <div class="slide" data-slide="5">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 5</div>
+            <h2 class="slide-title">Tujuan &amp; Manfaat Penelitian</h2>
+            <div class="card" style="margin-bottom: 12px">
+              <div class="slide-label" style="margin-bottom: 12px">Tujuan</div>
+              <ul class="bullet-list">
+                <li>
+                  <span class="bullet-icon"
+                    ><svg viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" /></svg
+                  ></span>
+                  <span
+                    >Membangun sistem, mengukur akurasi (Confusion Matrix +
+                    Blackbox), mewujudkan integrasi otomatis ke Sistem Presensi
+                    Pusat</span
+                  >
+                </li>
+              </ul>
+            </div>
+            <div class="card-grid-3">
+              <div class="card">
+                <div class="slide-label">Manfaat Industri</div>
+                <p style="font-size: 14px; color: var(--text); margin-top: 8px">
+                  Efisiensi antrean, hemat biaya perangkat baru (pakai CCTV
+                  eksisting), akurasi data lebih terjamin
+                </p>
+              </div>
+              <div class="card">
+                <div class="slide-label">Manfaat Institusi</div>
+                <p style="font-size: 14px; color: var(--text); margin-top: 8px">
+                  Kontribusi ilmiah di bidang Computer Vision dan biometrik
+                  wajah
+                </p>
+              </div>
+              <div class="card">
+                <div class="slide-label">Manfaat Penulis</div>
+                <p style="font-size: 14px; color: var(--text); margin-top: 8px">
+                  Pengasahan skill teknis di bidang Computer Vision dan
+                  pengembangan sistem
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 6: Metode Penelitian -->
+        <div class="slide" data-slide="6">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 6</div>
+            <h2 class="slide-title">Metode Penelitian</h2>
+            <div class="card-grid">
+              <div class="card">
+                <div class="slide-label">Jenis &amp; Sifat</div>
+                <ul class="bullet-list">
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                        <polyline points="2 17 12 22 22 17" />
+                        <polyline points="2 12 12 17 22 12" /></svg
+                    ></span>
+                    <span
+                      ><strong>Mixed Method</strong> – Concurrent Embedded
+                      (kualitatif primer, kuantitatif embedded)</span
+                    >
+                  </li>
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <polygon
+                          points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
+                        /></svg
+                    ></span>
+                    <span>Sifat: <strong>Eksperimen</strong></span>
+                  </li>
+                </ul>
+              </div>
+              <div class="card">
+                <div class="slide-label">Teknik Pengumpulan Data</div>
+                <ul class="bullet-list">
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <path
+                          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                        />
+                        <circle cx="12" cy="12" r="3" /></svg
+                    ></span>
+                    <span
+                      >Observasi, wawancara (Direktur, HR, Kepala IT), studi
+                      pustaka, pengumpulan dataset wajah</span
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="card" style="margin-top: 12px">
+              <div class="slide-label">Pendekatan: Prototyping</div>
+              <div class="pipeline">
+                <span class="pipeline-step">Analisis Kebutuhan</span>
+                <span class="pipeline-arrow">›</span>
+                <span class="pipeline-step">Perancangan</span>
+                <span class="pipeline-arrow">›</span>
+                <span class="pipeline-step">Pembentukan Prototipe</span>
+                <span class="pipeline-arrow">›</span>
+                <span class="pipeline-step">Evaluasi/Perbaikan</span>
+                <span class="pipeline-arrow">›</span>
+                <span class="pipeline-step">Implementasi Akhir</span>
+                <span class="pipeline-arrow">›</span>
+                <span class="pipeline-step">Pengujian</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 7: Analisis Kebutuhan -->
+        <div class="slide" data-slide="7">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 7</div>
+            <h2 class="slide-title">Analisis Kebutuhan</h2>
+            <div class="card-grid-3">
+              <div class="card">
+                <div class="slide-label">Karyawan</div>
+                <p
+                  style="
+                    font-size: 13px;
+                    color: var(--text);
+                    margin-top: 8px;
+                    line-height: 1.6;
+                  "
+                >
+                  Deteksi otomatis, bounding box hijau/merah, cooldown 30 detik
+                </p>
+              </div>
+              <div class="card">
+                <div class="slide-label">Admin</div>
+                <p
+                  style="
+                    font-size: 13px;
+                    color: var(--text);
+                    margin-top: 8px;
+                    line-height: 1.6;
+                  "
+                >
+                  Live log, riwayat harian, sinkronisasi database wajah,
+                  konfigurasi parameter
+                </p>
+              </div>
+              <div class="card">
+                <div class="slide-label">Tim IT / HR</div>
+                <p
+                  style="
+                    font-size: 13px;
+                    color: var(--text);
+                    margin-top: 8px;
+                    line-height: 1.6;
+                  "
+                >
+                  Kirim data via REST API, logging ke 3 folder
+                </p>
+              </div>
+            </div>
+            <div class="card" style="margin-top: 12px">
+              <div class="slide-label">Non-Fungsional (PIECES Framework)</div>
+              <p
+                style="
+                  font-size: 13.5px;
+                  color: var(--text);
+                  margin-top: 8px;
+                  line-height: 1.6;
+                "
+              >
+                Performance, Information, Economic, Control, Efficiency, Service
+              </p>
+            </div>
+            <div class="card-grid" style="margin-top: 12px">
+              <div class="card">
+                <div class="slide-label">Software</div>
+                <p
+                  style="
+                    font-size: 13px;
+                    color: var(--text);
+                    margin-top: 8px;
+                    line-height: 1.6;
+                  "
+                >
+                  Python 3.8–3.10, OpenCV, MediaPipe v0.10.21, Keras-FaceNet
+                  v0.3.0, NumPy, CustomTkinter, Requests
+                </p>
+              </div>
+              <div class="card">
+                <div class="slide-label">Hardware</div>
+                <p
+                  style="
+                    font-size: 13px;
+                    color: var(--text);
+                    margin-top: 8px;
+                    line-height: 1.6;
+                  "
+                >
+                  PC/Mini PC (i5 Gen-10/Ryzen 5, RAM 8GB), IP CCTV 1080p RTSP,
+                  LAN/Wi-Fi min 100 Mbps
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 8: Perancangan & Implementasi -->
+        <div class="slide" data-slide="8">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 8</div>
+            <h2 class="slide-title">Perancangan &amp; Implementasi Sistem</h2>
+            <div class="card" style="margin-bottom: 12px">
+              <div class="slide-label">Arsitektur Multi-Threading</div>
+              <div class="card-grid-3" style="margin-top: 12px">
+                <div
+                  class="card"
+                  style="
+                    text-align: center;
+                    border-color: var(--accent);
+                    background: var(--accent-bg);
+                  "
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                    stroke="var(--accent)"
+                    fill="none"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                    <line x1="8" y1="21" x2="16" y2="21" />
+                    <line x1="12" y1="17" x2="12" y2="21" />
+                  </svg>
+                  <p
+                    style="
+                      font-size: 13px;
+                      font-weight: 600;
+                      margin-top: 6px;
+                      color: var(--accent);
+                    "
+                  >
+                    Thread Pembaca RTSP
+                  </p>
+                </div>
+                <div
+                  class="card"
+                  style="
+                    text-align: center;
+                    border-color: var(--accent);
+                    background: var(--accent-bg);
+                  "
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                    stroke="var(--accent)"
+                    fill="none"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="4" y="4" width="16" height="16" rx="2" ry="2" />
+                    <rect x="9" y="9" width="6" height="6" />
+                    <line x1="9" y1="1" x2="9" y2="4" />
+                    <line x1="15" y1="1" x2="15" y2="4" />
+                    <line x1="9" y1="20" x2="9" y2="23" />
+                    <line x1="15" y1="20" x2="15" y2="23" />
+                    <line x1="20" y1="9" x2="23" y2="9" />
+                    <line x1="20" y1="14" x2="23" y2="14" />
+                    <line x1="1" y1="9" x2="4" y2="9" />
+                    <line x1="1" y1="14" x2="4" y2="14" />
+                  </svg>
+                  <p
+                    style="
+                      font-size: 13px;
+                      font-weight: 600;
+                      margin-top: 6px;
+                      color: var(--accent);
+                    "
+                  >
+                    Thread Model (Deteksi + Pengenalan)
+                  </p>
+                </div>
+                <div
+                  class="card"
+                  style="
+                    text-align: center;
+                    border-color: var(--accent);
+                    background: var(--accent-bg);
+                  "
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                    stroke="var(--accent)"
+                    fill="none"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                  </svg>
+                  <p
+                    style="
+                      font-size: 13px;
+                      font-weight: 600;
+                      margin-top: 6px;
+                      color: var(--accent);
+                    "
+                  >
+                    Thread Pengirim Data
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="slide-label">Pipeline Pengenalan Wajah</div>
+              <div class="pipeline">
+                <span class="pipeline-step">RTSP Stream</span>
+                <span class="pipeline-arrow">›</span>
+                <span class="pipeline-step">BlazeFace Detection</span>
+                <span class="pipeline-arrow">›</span>
+                <span class="pipeline-step">Face Alignment</span>
+                <span class="pipeline-arrow">›</span>
+                <span class="pipeline-step">128-D Embedding (FaceNet)</span>
+                <span class="pipeline-arrow">›</span>
+                <span class="pipeline-step"
+                  >Euclidean Distance (threshold 0.75)</span
+                >
+                <span class="pipeline-arrow">›</span>
+                <span class="pipeline-step">Sistem Presensi Pusat</span>
+              </div>
+            </div>
+            <div class="card" style="margin-top: 12px">
+              <div class="slide-label">Fitur Tambahan</div>
+              <ul class="bullet-list">
+                <li>
+                  <span class="bullet-icon"
+                    ><svg viewBox="0 0 24 24">
+                      <path
+                        d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                      />
+                      <circle cx="12" cy="10" r="3" /></svg
+                  ></span>
+                  <span>Validasi lokasi GPS (geofencing)</span>
+                </li>
+                <li>
+                  <span class="bullet-icon"
+                    ><svg viewBox="0 0 24 24">
+                      <path
+                        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                      />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                      <polyline points="10 9 9 9 8 9" /></svg
+                  ></span>
+                  <span>Sistem logging untuk audit jejak presensi</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 9: Gallery Wireframe -->
+        <div class="slide" data-slide="9">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 9</div>
+            <h2 class="slide-title">Wireframe Antarmuka</h2>
+            <p class="slide-subtitle">
+              Rancangan awal (wireframe) antarmuka sistem sebelum pengembangan
+            </p>
+            <div class="gallery-grid">
+              <div class="gallery-item" onclick="openLightbox(this)">
+                <img
+                  src="images/wireframe_monitoring.png"
+                  alt="Wireframe Monitoring"
+                  loading="lazy"
+                />
+                <div class="gallery-caption">
+                  <div class="gallery-caption-title">Halaman Monitoring</div>
+                  <div class="gallery-caption-desc">
+                    Live camera feed dengan bounding box deteksi wajah dan
+                    daftar karyawan
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-item" onclick="openLightbox(this)">
+                <img
+                  src="images/wireframe_admin.png"
+                  alt="Wireframe Admin Panel"
+                  loading="lazy"
+                />
+                <div class="gallery-caption">
+                  <div class="gallery-caption-title">
+                    Panel Konfigurasi Admin
+                  </div>
+                  <div class="gallery-caption-desc">
+                    RTSP URL, threshold, cooldown timer, dan sinkronisasi
+                    database
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-item" onclick="openLightbox(this)">
+                <img
+                  src="images/wireframe_history.png"
+                  alt="Wireframe History"
+                  loading="lazy"
+                />
+                <div class="gallery-caption">
+                  <div class="gallery-caption-title">Riwayat Presensi</div>
+                  <div class="gallery-caption-desc">
+                    Tabel log kehadiran dengan filter tanggal dan paginasi
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 10: Gallery Hasil UI -->
+        <div class="slide" data-slide="10">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 10</div>
+            <h2 class="slide-title">Hasil Pengembangan Antarmuka</h2>
+            <p class="slide-subtitle">
+              Tampilan akhir aplikasi setelah proses pengembangan
+              (CustomTkinter)
+            </p>
+            <div class="gallery-grid">
+              <div class="gallery-item" onclick="openLightbox(this)">
+                <img
+                  src="images/ui_live_monitoring.png"
+                  alt="UI Live Monitoring"
+                  loading="lazy"
+                />
+                <div class="gallery-caption">
+                  <div class="gallery-caption-title">Live Monitoring</div>
+                  <div class="gallery-caption-desc">
+                    Feed CCTV real-time dengan bounding box hijau, status
+                    sistem, dan log pengenalan
+                  </div>
+                </div>
+              </div>
+              <div class="gallery-item" onclick="openLightbox(this)">
+                <img
+                  src="images/ui_admin_dashboard.png"
+                  alt="UI Admin Dashboard"
+                  loading="lazy"
+                />
+                <div class="gallery-caption">
+                  <div class="gallery-caption-title">
+                    Riwayat Kehadiran Harian
+                  </div>
+                  <div class="gallery-caption-desc">Log kehadiran harian</div>
+                </div>
+              </div>
+              <div class="gallery-item" onclick="openLightbox(this)">
+                <img
+                  src="images/ui_settings.png"
+                  alt="UI Settings"
+                  loading="lazy"
+                />
+                <div class="gallery-caption">
+                  <div class="gallery-caption-title">Panel Pengaturan</div>
+                  <div class="gallery-caption-desc">
+                    Konfigurasi RTSP, threshold 0.75, cooldown 30s, geofencing,
+                    dan sync database
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 11: Blackbox Testing -->
+        <div class="slide" data-slide="11">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 11</div>
+            <h2 class="slide-title">Hasil Pengujian: Blackbox Testing</h2>
+            <p class="slide-subtitle">
+              10 skenario uji (TS-1 s/d TS-10) mencakup aktor Karyawan, Admin,
+              dan Tim IT
+            </p>
+            <table class="bb-table">
+              <thead>
+                <tr>
+                  <th>Kode</th>
+                  <th>Skenario</th>
+                  <th>Hasil</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>TS-1</td>
+                  <td>Konfigurasi parameter sistem</td>
+                  <td>
+                    <span class="badge-success"
+                      ><svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        stroke="currentColor"
+                        fill="none"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Sukses</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>TS-2</td>
+                  <td>Konektivitas RTSP</td>
+                  <td>
+                    <span class="badge-success"
+                      ><svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        stroke="currentColor"
+                        fill="none"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Sukses</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>TS-3</td>
+                  <td>Sinkronisasi database wajah</td>
+                  <td>
+                    <span class="badge-success"
+                      ><svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        stroke="currentColor"
+                        fill="none"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Sukses</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>TS-4</td>
+                  <td>Deteksi wajah karyawan</td>
+                  <td>
+                    <span class="badge-success"
+                      ><svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        stroke="currentColor"
+                        fill="none"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Sukses</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>TS-5</td>
+                  <td>Pengenalan wajah terdaftar</td>
+                  <td>
+                    <span class="badge-success"
+                      ><svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        stroke="currentColor"
+                        fill="none"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Sukses</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>TS-6</td>
+                  <td>Penolakan wajah tidak terdaftar</td>
+                  <td>
+                    <span class="badge-success"
+                      ><svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        stroke="currentColor"
+                        fill="none"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Sukses</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>TS-7</td>
+                  <td>Cooldown 30 detik</td>
+                  <td>
+                    <span class="badge-success"
+                      ><svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        stroke="currentColor"
+                        fill="none"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Sukses</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>TS-8</td>
+                  <td>Pengiriman data ke server pusat</td>
+                  <td>
+                    <span class="badge-success"
+                      ><svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        stroke="currentColor"
+                        fill="none"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Sukses</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>TS-9</td>
+                  <td>Live log aktivitas</td>
+                  <td>
+                    <span class="badge-success"
+                      ><svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        stroke="currentColor"
+                        fill="none"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Sukses</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>TS-10</td>
+                  <td>Riwayat harian presensi</td>
+                  <td>
+                    <span class="badge-success"
+                      ><svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        stroke="currentColor"
+                        fill="none"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Sukses</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div
+              class="stat-card"
+              style="margin-top: 16px; border-color: var(--success)"
+            >
+              <div class="stat-value success">10 / 10</div>
+              <div class="stat-label">Seluruh Skenario SUKSES</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 12: Confusion Matrix -->
+        <div class="slide" data-slide="12">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 12</div>
+            <h2 class="slide-title">Hasil Pengujian: Confusion Matrix</h2>
+            <p class="slide-subtitle">100 sampel uji (80 karyawan + 20 tamu)</p>
+
+            <div class="matrix-container">
+              <div class="matrix-corner"></div>
+              <div class="matrix-col-header">Prediksi Positif</div>
+              <div class="matrix-col-header">Prediksi Negatif</div>
+              <div class="matrix-row-header">Aktual Positif</div>
+              <div class="matrix-cell matrix-tp">
+                <span class="val">76</span><span class="lbl">TP</span>
+              </div>
+              <div class="matrix-cell matrix-fn">
+                <span class="val">4</span><span class="lbl">FN</span>
+              </div>
+              <div class="matrix-row-header">Aktual Negatif</div>
+              <div class="matrix-cell matrix-fp">
+                <span class="val">1</span><span class="lbl">FP</span>
+              </div>
+              <div class="matrix-cell matrix-tn">
+                <span class="val">19</span><span class="lbl">TN</span>
+              </div>
+            </div>
+
+            <div
+              class="card-grid"
+              style="grid-template-columns: repeat(4, 1fr)"
+            >
+              <div class="stat-card">
+                <div class="stat-value">95,0%</div>
+                <div class="stat-label">Accuracy</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">98,7%</div>
+                <div class="stat-label">Precision</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">95,0%</div>
+                <div class="stat-label">Recall</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">96,8%</div>
+                <div class="stat-label">F1-Score</div>
+              </div>
+            </div>
+            <div class="card" style="margin-top: 12px">
+              <p style="font-size: 14px; color: var(--text)">
+                Threshold <strong>0.75</strong> optimal — aman dari orang asing
+                (precision tinggi) tapi tetap nyaman untuk karyawan (recall
+                tinggi)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 13: Operasional Lapangan -->
+        <div class="slide" data-slide="13">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 13</div>
+            <h2 class="slide-title">Hasil Pengujian: Operasional Lapangan</h2>
+            <p class="slide-subtitle">
+              Uji 30 karyawan di pintu masuk — Fingerprint vs Face Recognition
+            </p>
+
+            <div class="compare-grid">
+              <div class="compare-col before">
+                <div class="compare-header">Fingerprint</div>
+                <div class="compare-item">
+                  <div class="label">Total Waktu</div>
+                  113,62 detik
+                </div>
+                <div class="compare-item">
+                  <div class="label">Rata-rata</div>
+                  3,79 detik / orang
+                </div>
+                <div class="compare-item">
+                  <div class="label">Error Rate</div>
+                  <strong style="color: var(--danger)">56,67%</strong> (17/30
+                  gagal scan)
+                </div>
+              </div>
+              <div class="compare-col after">
+                <div class="compare-header">Face Recognition</div>
+                <div class="compare-item">
+                  <div class="label">Total Waktu</div>
+                  66,70 detik
+                </div>
+                <div class="compare-item">
+                  <div class="label">Rata-rata</div>
+                  2,22 detik / orang
+                </div>
+                <div class="compare-item">
+                  <div class="label">Error Rate</div>
+                  <strong style="color: var(--success)">0%</strong>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="stat-card"
+              style="margin-top: 16px; border-color: var(--success)"
+            >
+              <div
+                class="stat-value success"
+                style="font-size: clamp(2.5rem, 6vw, 4rem)"
+              >
+                41,42%
+              </div>
+              <div class="stat-label">Peningkatan Efisiensi Waktu</div>
+              <div class="stat-sub">
+                Face Recognition lebih cepat dengan 0% error rate
+              </div>
+            </div>
+
+            <div class="bar-chart" id="barChart11">
+              <div class="bar-group">
+                <div class="bar-wrapper">
+                  <div
+                    class="bar"
+                    style="height: 81%; background: var(--danger)"
+                    data-height="81"
+                  >
+                    <span class="bar-val" style="color: var(--danger)"
+                      >113,62s</span
+                    >
+                  </div>
+                </div>
+                <div class="bar-label">Fingerprint Total</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar-wrapper">
+                  <div
+                    class="bar"
+                    style="height: 47%; background: var(--success)"
+                    data-height="47"
+                  >
+                    <span class="bar-val" style="color: var(--success)"
+                      >66,70s</span
+                    >
+                  </div>
+                </div>
+                <div class="bar-label">Face Rec. Total</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar-wrapper">
+                  <div
+                    class="bar"
+                    style="height: 27%; background: var(--danger)"
+                    data-height="27"
+                  >
+                    <span class="bar-val" style="color: var(--danger)"
+                      >3,79s</span
+                    >
+                  </div>
+                </div>
+                <div class="bar-label">Fingerprint Avg</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar-wrapper">
+                  <div
+                    class="bar"
+                    style="height: 16%; background: var(--success)"
+                    data-height="16"
+                  >
+                    <span class="bar-val" style="color: var(--success)"
+                      >2,22s</span
+                    >
+                  </div>
+                </div>
+                <div class="bar-label">Face Rec. Avg</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 14: PIECES -->
+        <div class="slide" data-slide="14">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 14</div>
+            <h2 class="slide-title">Analisis Komparatif PIECES</h2>
+            <p class="slide-subtitle">
+              Sebelum vs Sesudah implementasi Face Recognition
+            </p>
+            <div class="pieces-grid">
+              <div class="pieces-card">
+                <div class="pieces-letter">P</div>
+                <div class="pieces-name">Performance</div>
+                <div class="pieces-row">
+                  <div class="pieces-before">3,32 detik, kontak fisik</div>
+                  <div class="pieces-after">2,22 detik, nirkontak</div>
+                </div>
+              </div>
+              <div class="pieces-card">
+                <div class="pieces-letter">I</div>
+                <div class="pieces-name">Information</div>
+                <div class="pieces-row">
+                  <div class="pieces-before">Manual / offline</div>
+                  <div class="pieces-after">
+                    Real-time via REST API, log dapat diaudit
+                  </div>
+                </div>
+              </div>
+              <div class="pieces-card">
+                <div class="pieces-letter">E</div>
+                <div class="pieces-name">Economic</div>
+                <div class="pieces-row">
+                  <div class="pieces-before">Biaya alat baru Rp1,5–3 juta</div>
+                  <div class="pieces-after">Rp0 (pakai CCTV eksisting)</div>
+                </div>
+              </div>
+              <div class="pieces-card">
+                <div class="pieces-letter">C</div>
+                <div class="pieces-name">Control</div>
+                <div class="pieces-row">
+                  <div class="pieces-before">Rawan titip absen</div>
+                  <div class="pieces-after">Biometrik wajah + validasi GPS</div>
+                </div>
+              </div>
+              <div class="pieces-card">
+                <div class="pieces-letter">E</div>
+                <div class="pieces-name">Efficiency</div>
+                <div class="pieces-row">
+                  <div class="pieces-before">45–55% karyawan telat</div>
+                  <div class="pieces-after">
+                    Keterlambatan akibat antrean 0%
+                  </div>
+                </div>
+              </div>
+              <div class="pieces-card">
+                <div class="pieces-letter">S</div>
+                <div class="pieces-name">Service</div>
+                <div class="pieces-row">
+                  <div class="pieces-before">Kurang nyaman</div>
+                  <div class="pieces-after">Layanan otomatis &amp; nyaman</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 15: Kesimpulan -->
+        <div class="slide" data-slide="15">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 15</div>
+            <h2 class="slide-title">Kesimpulan</h2>
+            <div class="card">
+              <ul class="bullet-list">
+                <li>
+                  <span class="bullet-icon"
+                    ><svg viewBox="0 0 24 24">
+                      <polyline points="20 6 9 17 4 12" /></svg
+                  ></span>
+                  <span
+                    >Sistem berhasil dibangun, <strong>fleksibel</strong> untuk
+                    penambahan karyawan baru tanpa reset ulang</span
+                  >
+                </li>
+                <li>
+                  <span class="bullet-icon"
+                    ><svg viewBox="0 0 24 24">
+                      <path
+                        d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                      /></svg
+                  ></span>
+                  <span
+                    >Andal, <strong>aman</strong> (precision 98,7%), dan
+                    <strong>nyaman</strong> (recall 95,0%) — seimbang antara
+                    keamanan &amp; kenyamanan</span
+                  >
+                </li>
+                <li>
+                  <span class="bullet-icon"
+                    ><svg viewBox="0 0 24 24">
+                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg
+                  ></span>
+                  <span
+                    >Alur data dari IP CCTV sampai Sistem Presensi Pusat
+                    berjalan <strong>otomatis di background</strong> tanpa
+                    mengganggu performa aplikasi</span
+                  >
+                </li>
+              </ul>
+            </div>
+            <div
+              class="card-grid"
+              style="margin-top: 12px; grid-template-columns: repeat(3, 1fr)"
+            >
+              <div class="stat-card" style="border-color: var(--accent)">
+                <div class="stat-value">98,7%</div>
+                <div class="stat-label">Precision</div>
+                <div class="stat-sub">Keamanan</div>
+              </div>
+              <div class="stat-card" style="border-color: var(--success)">
+                <div class="stat-value success">95,0%</div>
+                <div class="stat-label">Recall</div>
+                <div class="stat-sub">Kenyamanan</div>
+              </div>
+              <div class="stat-card" style="border-color: var(--warning)">
+                <div class="stat-value warning">41,42%</div>
+                <div class="stat-label">Efisiensi</div>
+                <div class="stat-sub">Lebih Cepat</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 16: Saran Pengembangan -->
+        <div class="slide" data-slide="16">
+          <div class="slide-inner">
+            <div class="slide-label">Slide 16</div>
+            <h2 class="slide-title">Saran Pengembangan</h2>
+            <div class="card-grid" style="grid-template-columns: 1fr">
+              <div class="card">
+                <ul class="bullet-list">
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <path
+                          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                        />
+                        <circle cx="12" cy="12" r="3" /></svg
+                    ></span>
+                    <span
+                      >Tambahkan <strong>liveness detection</strong> (deteksi
+                      kedipan/senyum) agar tidak bisa ditipu foto/video</span
+                    >
+                  </li>
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <rect
+                          x="4"
+                          y="4"
+                          width="16"
+                          height="16"
+                          rx="2"
+                          ry="2"
+                        />
+                        <rect x="9" y="9" width="6" height="6" />
+                        <line x1="9" y1="1" x2="9" y2="4" />
+                        <line x1="15" y1="1" x2="15" y2="4" />
+                        <line x1="9" y1="20" x2="9" y2="23" />
+                        <line x1="15" y1="20" x2="15" y2="23" />
+                        <line x1="20" y1="9" x2="23" y2="9" />
+                        <line x1="20" y1="14" x2="23" y2="14" />
+                        <line x1="1" y1="9" x2="4" y2="9" />
+                        <line x1="1" y1="14" x2="4" y2="14" /></svg
+                    ></span>
+                    <span
+                      >Gunakan perangkat pemroses khusus (<strong
+                        >embedded/edge device</strong
+                      >) agar lebih hemat daya</span
+                    >
+                  </li>
+                  <li>
+                    <span class="bullet-icon"
+                      ><svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="5" />
+                        <line x1="12" y1="1" x2="12" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="23" />
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                        <line x1="1" y1="12" x2="3" y2="12" />
+                        <line x1="21" y1="12" x2="23" y2="12" />
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg
+                    ></span>
+                    <span
+                      ><strong>Penyesuaian pencahayaan otomatis</strong> kamera
+                      untuk atasi silau matahari</span
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 17: Penutup -->
+        <div class="slide" data-slide="17">
+          <div class="slide-inner closing-slide">
+            <div class="closing-icon">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                />
+              </svg>
+            </div>
+            <h2 class="slide-title">Terima Kasih</h2>
+            <p class="slide-subtitle" style="max-width: 500px; margin: 0 auto">
+              Sesi Tanya Jawab
+            </p>
+            <div class="title-badge" style="margin-top: 24px">
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                stroke="currentColor"
+                fill="none"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                />
+              </svg>
+              Silakan ajukan pertanyaan
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM NAV -->
+      <div class="bottom-nav">
+        <button class="nav-btn" id="btnPrev" disabled>
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" /></svg>
+          Previous
+        </button>
+        <button class="nav-btn primary" id="btnNext">
+          Next
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- LIGHTBOX OVERLAY -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+      <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+      <img id="lightboxImg" src="" alt="" onclick="event.stopPropagation()" />
+      <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const TOTAL = 17;
+        let current = 1;
+        let isAnimating = false;
+
+        const slides = document.querySelectorAll(".slide");
+        const btnPrev = document.getElementById("btnPrev");
+        const btnNext = document.getElementById("btnNext");
+        const counter = document.getElementById("slideCounter");
+        const progress = document.getElementById("progressFill");
+        const btnTheme = document.getElementById("btnTheme");
+        const btnFullscreen = document.getElementById("btnFullscreen");
+        const iconSun = document.getElementById("iconSun");
+        const iconMoon = document.getElementById("iconMoon");
+        const html = document.documentElement;
+
+        // ===== NAVIGATION =====
+        function goTo(n, direction) {
+          if (n < 1 || n > TOTAL || n === current || isAnimating) return;
+          isAnimating = true;
+
+          const prev = document.querySelector(".slide.active");
+          const next = slides[n - 1];
+
+          // Set initial position for incoming slide
+          if (direction === "next") {
+            next.style.transform = "translateX(40px)";
+          } else {
+            next.style.transform = "translateX(-40px)";
+          }
+          next.style.opacity = "0";
+
+          // Remove exit classes
+          prev.classList.remove("active");
+          if (direction === "next") {
+            prev.classList.add("exit-left");
+          } else {
+            prev.style.transform = "translateX(40px)";
+            prev.style.opacity = "0";
+          }
+
+          // Force reflow
+          void next.offsetWidth;
+
+          next.classList.add("active");
+          next.style.transform = "";
+          next.style.opacity = "";
+
+          current = n;
+          updateUI();
+
+          setTimeout(() => {
+            prev.classList.remove("exit-left");
+            prev.style.transform = "";
+            prev.style.opacity = "";
+            isAnimating = false;
+          }, 380);
+        }
+
+        function nextSlide() {
+          goTo(current + 1, "next");
+        }
+        function prevSlide() {
+          goTo(current - 1, "prev");
+        }
+
+        function updateUI() {
+          counter.textContent = `${current} / ${TOTAL}`;
+          progress.style.width = `${(current / TOTAL) * 100}%`;
+          btnPrev.disabled = current === 1;
+          btnNext.disabled = current === TOTAL;
+
+          // Update button text for last slide
+          if (current === TOTAL) {
+            btnNext.innerHTML = `End <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+          } else {
+            btnNext.innerHTML = `Next <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+          }
+        }
+
+        btnPrev.addEventListener("click", prevSlide);
+        btnNext.addEventListener("click", nextSlide);
+
+        // ===== KEYBOARD =====
+        document.addEventListener("keydown", (e) => {
+          switch (e.key) {
+            case "ArrowRight":
+            case " ":
+            case "Enter":
+              e.preventDefault();
+              nextSlide();
+              break;
+            case "ArrowLeft":
+            case "Backspace":
+              e.preventDefault();
+              prevSlide();
+              break;
+            case "Home":
+              e.preventDefault();
+              goTo(1, "prev");
+              break;
+            case "End":
+              e.preventDefault();
+              goTo(TOTAL, "next");
+              break;
+            case "f":
+            case "F":
+              if (!e.ctrlKey && !e.metaKey) toggleFullscreen();
+              break;
+            case "d":
+            case "D":
+              if (!e.ctrlKey && !e.metaKey) toggleTheme();
+              break;
+            case "Escape":
+              if (document.fullscreenElement) {
+                document.exitFullscreen();
+              }
+              break;
+          }
+        });
+
+        // ===== TOUCH/SWIPE =====
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        document.addEventListener(
+          "touchstart",
+          (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+          },
+          { passive: true },
+        );
+
+        document.addEventListener(
+          "touchend",
+          (e) => {
+            const dx = e.changedTouches[0].screenX - touchStartX;
+            const dy = e.changedTouches[0].screenY - touchStartY;
+
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+              if (dx < 0) nextSlide();
+              else prevSlide();
+            }
+          },
+          { passive: true },
+        );
+
+        // ===== DARK MODE =====
+        function toggleTheme() {
+          const isDark = html.getAttribute("data-theme") === "dark";
+          html.setAttribute("data-theme", isDark ? "light" : "dark");
+          iconSun.style.display = isDark ? "block" : "none";
+          iconMoon.style.display = isDark ? "none" : "block";
+          try {
+            localStorage.setItem("theme", isDark ? "light" : "dark");
+          } catch (e) {}
+        }
+
+        // Restore theme
+        try {
+          const saved = localStorage.getItem("theme");
+          if (saved === "dark") {
+            html.setAttribute("data-theme", "dark");
+            iconSun.style.display = "none";
+            iconMoon.style.display = "block";
+          }
+        } catch (e) {}
+
+        // Detect system preference
+        if (
+          !localStorage.getItem("theme") &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches
+        ) {
+          html.setAttribute("data-theme", "dark");
+          iconSun.style.display = "none";
+          iconMoon.style.display = "block";
+        }
+
+        btnTheme.addEventListener("click", toggleTheme);
+
+        // ===== FULLSCREEN =====
+        function toggleFullscreen() {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen();
+          }
+        }
+
+        btnFullscreen.addEventListener("click", toggleFullscreen);
+      })();
+
+      // ===== LIGHTBOX (global scope for inline onclick) =====
+      function openLightbox(el) {
+        const img = el.querySelector("img");
+        const title = el.querySelector(".gallery-caption-title");
+        const lb = document.getElementById("lightbox");
+        const lbImg = document.getElementById("lightboxImg");
+        const lbCap = document.getElementById("lightboxCaption");
+        lbImg.src = img.src;
+        lbImg.alt = img.alt;
+        lbCap.textContent = title ? title.textContent : "";
+        requestAnimationFrame(() => lb.classList.add("open"));
+      }
+
+      function closeLightbox() {
+        document.getElementById("lightbox").classList.remove("open");
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeLightbox();
+      });
+    </script>
+  </body>
+</html>
